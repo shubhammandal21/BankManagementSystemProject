@@ -2,6 +2,7 @@ package com.org.bankmgmtSystem;
 
 import com.org.bankmgmtSystem.controller.UserController;
 import com.org.bankmgmtSystem.dto.LoginDto;
+import com.org.bankmgmtSystem.dto.UserDto;
 import com.org.bankmgmtSystem.reponse.LoginResponse;
 import com.org.bankmgmtSystem.service.UserService;
 import org.junit.jupiter.api.BeforeEach;
@@ -51,4 +52,47 @@ public class UserControllerTest {
         assertEquals(HttpStatus.OK, responseEntity.getStatusCode());
         assertEquals(loginResponse, responseEntity.getBody());
     }
+
+    @Test
+    public void testEditUserDetails() {
+        // Mock userDto
+        UserDto userDto = new UserDto();
+        userDto.setUserid(1);
+        userDto.setUsername("Shubham Mandal");
+        userDto.setEmail("shubham@example.com");
+        userDto.setPassword("newpassword");
+        userDto.setAddress("Hyderabad");
+        userDto.setCountry("India");
+        userDto.setAge(30);
+        userDto.setPanNumber("ABCDE1234F");
+        userDto.setAccountType("Savings");
+
+        // Mock updatedUserDto
+        UserDto updatedUserDto = new UserDto();
+        updatedUserDto.setUserid(1);
+        updatedUserDto.setUsername("Shubham Mandal");
+        updatedUserDto.setEmail("shubham@example.com");
+        updatedUserDto.setPassword("newpassword");
+        updatedUserDto.setAddress("Hyderabad");
+        updatedUserDto.setCountry("India");
+        updatedUserDto.setAge(30);
+        updatedUserDto.setPanNumber("ABCDE1234F");
+        updatedUserDto.setAccountType("Savings");
+
+        // Mock the userService.editUserDetails() method
+        when(userService.editUserDetails(userDto)).thenReturn(updatedUserDto);
+
+        // Call the editUserDetails() method in the UserController
+        ResponseEntity<?> responseEntity = userController.editUserDetails(userDto);
+
+        // Verify that the userService.editUserDetails() method was called with the correct userDto
+        verify(userService, times(1)).editUserDetails(userDto);
+
+        // Verify the response status code and body
+        assertEquals(HttpStatus.OK, responseEntity.getStatusCode());
+        assertEquals("User details updated successfully", responseEntity.getBody());
+    }
+    
+    
+
 }
