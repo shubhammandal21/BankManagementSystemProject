@@ -1,59 +1,54 @@
 package com.org.bankmgmtSystem;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
-
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.org.bankmgmtSystem.controller.UserController;
-import com.org.bankmgmtSystem.dto.UserDto;
+import com.org.bankmgmtSystem.dto.LoginDto;
+import com.org.bankmgmtSystem.reponse.LoginResponse;
 import com.org.bankmgmtSystem.service.UserService;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.http.MediaType;
-import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
-import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
+import org.mockito.MockitoAnnotations;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 
-@WebMvcTest(UserController.class)
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.mockito.Mockito.*;
+
 public class UserControllerTest {
-    
-    @Autowired
-    private MockMvc mockMvc;
 
-    @Autowired
-    private ObjectMapper objectMapper;
-
-    @MockBean
+    @Mock
     private UserService userService;
 
     @InjectMocks
     private UserController userController;
 
+    @BeforeEach
+    public void setup() {
+        MockitoAnnotations.openMocks(this);
+    }
+
     @Test
-    public void testEditUserDetails() throws Exception {
-        // Mock the userDto and updatedUserDto
-        UserDto userDto = new UserDto();
-        // Set userDto properties
+    public void testLoginUser() {
+        // Mock loginDto
+        LoginDto loginDto = new LoginDto();
+        loginDto.setEmail("testuser@example.com");
+        loginDto.setPassword("testpassword");
 
-        UserDto updatedUserDto = new UserDto();
-        // Set updatedUserDto properties
-        
-        // Mock the UserService method
-        when(userService.editUserDetails(userDto)).thenReturn(updatedUserDto);
+        // Mock loginResponse
+        LoginResponse loginResponse = new LoginResponse("Login successful", true);
 
-        // Perform the test
-        mockMvc.perform(MockMvcRequestBuilders.put("/api/v1/user/edit")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(userDto)))
-                .andExpect(MockMvcResultMatchers.status().isOk())
-                .andExpect(MockMvcResultMatchers.content().string("User details updated successfully"));
+        // Mock the userService.loginUser() method
+        when(userService.loginUser(loginDto)).thenReturn(loginResponse);
 
-        // Verify the UserService method was called
-        verify(userService).editUserDetails(userDto);
+        // Call the loginUser() method in the UserController
+        ResponseEntity<?> responseEntity = userController.loginUser(loginDto);
+
+        // Verify that the userService.loginUser() method was called with the correct loginDto
+        verify(userService, times(1)).loginUser(loginDto);
+
+        // Verify the response status code and body
+        assertEquals(HttpStatus.OK, responseEntity.getStatusCode());
+        assertEquals(loginResponse, responseEntity.getBody());
     }
 }
